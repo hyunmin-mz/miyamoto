@@ -1,13 +1,13 @@
 /* Miyamoto-san https://github.com/masuidrive/miyamoto/ */
 /* (c) masuidrive 2014- License: MIT */
 /* ------------------- */
-// 日付関係の関数
+// 날짜 관련 함수
 // DateUtils = loadDateUtils();
 
 loadDateUtils = function () {
   var DateUtils = {};
 
-  // 今を返す
+  // 현재 날짜를 반환
   var _now = new Date();
   var now = function(datetime) {
     if(typeof datetime != 'undefined') {
@@ -17,17 +17,17 @@ loadDateUtils = function () {
   };
   DateUtils.now = now;
 
-  // テキストから時間を抽出
+  // 텍스트에서 시간을 추출
   DateUtils.parseTime = function(str) {
     str = String(str || "").toLowerCase().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
       return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
     });
-    var reg = /((\d{1,2})\s*[:時]{1}\s*(\d{1,2})\s*(pm|)|(am|pm|午前|午後)\s*(\d{1,2})(\s*[:時]\s*(\d{1,2})|)|(\d{1,2})(\s*[:時]{1}\s*(\d{1,2})|)(am|pm)|(\d{1,2})\s*時)/;
+    var reg = /((\d{1,2})\s*[:시]{1}\s*(\d{1,2})\s*(pm|)|(am|pm|오전|오후)\s*(\d{1,2})(\s*[:시]\s*(\d{1,2})|)|(\d{1,2})(\s*[:시]{1}\s*(\d{1,2})|)(am|pm)|(\d{1,2})\s*시)/;
     var matches = str.match(reg);
     if(matches) {
       var hour, min;
 
-      // 1時20, 2:30, 3:00pm
+      // 1시20, 2:30, 3:00pm
       if(matches[2] != null) {
         hour = parseInt(matches[2]);
         min = parseInt(matches[3] ? matches[3] : '0');
@@ -36,11 +36,11 @@ loadDateUtils = function () {
         }
       }
 
-      // 午後1 午後2時30 pm3
+      // 오후1 오후2시30 pm3
       if(matches[5] != null) {
         hour = parseInt(matches[6]);
         min = parseInt(matches[8] ? matches[8] : '0');
-        if(_.contains(['pm', '午後'], matches[5])) {
+        if(_.contains(['pm', '오후'], matches[5])) {
           hour += 12;
         }
       }
@@ -54,7 +54,7 @@ loadDateUtils = function () {
         }
       }
 
-      // 14時
+      // 14시
       if(matches[13] != null) {
         hour = parseInt(matches[13]);
         min = 0;
@@ -65,27 +65,27 @@ loadDateUtils = function () {
     return null;
   };
 
-  // テキストから日付を抽出
+  // 텍스트에서 날짜를 추출
   DateUtils.parseDate = function(str) {
     str = String(str || "").toLowerCase().replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
       return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
     });
 
-    if(str.match(/(明日|tomorrow)/)) {
+    if(str.match(/(내일|tomorrow)/)) {
       var tomorrow = new Date(now().getFullYear(), now().getMonth(), now().getDate()+1);
       return [tomorrow.getFullYear(), tomorrow.getMonth()+1, tomorrow.getDate()]
     }
 
-    if(str.match(/(今日|today)/)) {
+    if(str.match(/(오늘|today)/)) {
       return [now().getFullYear(), now().getMonth()+1, now().getDate()]
     }
 
-    if(str.match(/(昨日|yesterday)/)) {
+    if(str.match(/(어제|yesterday)/)) {
       var yesterday = new Date(now().getFullYear(), now().getMonth(), now().getDate()-1);
       return [yesterday.getFullYear(), yesterday.getMonth()+1, yesterday.getDate()]
     }
 
-    var reg = /((\d{4})[-\/年]{1}|)(\d{1,2})[-\/月]{1}(\d{1,2})/;
+    var reg = /((\d{4})[-\/년]{1}|)(\d{1,2})[-\/월]{1}(\d{1,2})/;
     var matches = str.match(reg);
     if(matches) {
       var year = parseInt(matches[2]);
@@ -110,9 +110,9 @@ loadDateUtils = function () {
     return null;
   };
 
-  // 日付と時間の配列から、Dateオブジェクトを生成
+  // 날짜와 시간 사이의 배열에서, Date 객체를 생성
   DateUtils.normalizeDateTime = function(date, time) {
-    // 時間だけの場合は日付を補完する
+    // 시간만으로 날짜를 생성하는 작업
     if(date) {
       if(!time) date = null;
     }
@@ -123,7 +123,7 @@ loadDateUtils = function () {
       }
     }
 
-    // 日付を指定したけど、時間を書いてない場合は扱わない
+    // 날짜를 지정하지만, 시간 사이의 공백의 경우는 취급하지 않는다.
     if(date && time) {
       return(new Date(date[0], date[1]-1, date[2], time[0], time[1], 0));
     }
@@ -132,7 +132,7 @@ loadDateUtils = function () {
     }
   };
 
-  // 日時をいれてparseする
+  // 날짜와 시간을 넣고 parse 작업
   DateUtils.parseDateTime = function(str) {
     var date = DateUtils.parseDate(str);
     var time = DateUtils.parseTime(str);
@@ -145,16 +145,16 @@ loadDateUtils = function () {
     }
   };
 
-  // Dateから日付部分だけを取り出す
+  // Date에서 날짜 부분만 추출
   DateUtils.toDate = function(date) {
     return(new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0));
   };
 
-  // 曜日を解析
+  // 요일을 분석
   DateUtils.parseWday = function(str) {
-    str = String(str).replace(/曜日/g, '');
+    str = String(str).replace(/요일/g, '');
     var result = [];
-    var wdays = [/(sun|日)/i, /(mon|月)/i, /(tue|火)/i, /(wed|水)/i, /(thu|木)/i, /(fri|金)/i, /(sat|土)/i];
+    var wdays = [/(sun|일)/i, /(mon|월)/i, /(tue|화)/i, /(wed|수)/i, /(thu|목)/i, /(fri|금)/i, /(sat|토)/i];
     for(var i=0; i<wdays.length; ++i) {
       if(str.match(wdays[i])) result.push(i);
     }
@@ -192,7 +192,7 @@ loadDateUtils = function () {
 if(typeof exports !== 'undefined') {
   exports.DateUtils = loadDateUtils();
 }
-// 日付関係の関数
+// 날짜 관련 함수
 // EventListener = loadEventListener();
 
 loadEventListener = function () {
@@ -200,7 +200,7 @@ loadEventListener = function () {
     this._events = {};
   }
 
-  // イベントを捕捉
+  // 이벤트를 포착
   EventListener.prototype.on = function(eventName, func) {
     if(this._events[eventName]) {
       this._events[eventName].push(func);
@@ -210,7 +210,7 @@ loadEventListener = function () {
     }
   };
 
-  // イベント発行
+  // 이벤트 발행
   EventListener.prototype.fireEvent = function(eventName) {
     var funcs = this._events[eventName];
     if(funcs) {
@@ -227,7 +227,7 @@ if(typeof exports !== 'undefined') {
   exports.EventListener = loadEventListener();
 }
 // KVS
-// でも今回は使ってないです
+// 하지만 이번에는 사용하지 않음
 
 loadGASProperties = function (exports) {
   var GASProperties = function() {
@@ -249,9 +249,9 @@ loadGASProperties = function (exports) {
 if(typeof exports !== 'undefined') {
   exports.GASProperties = loadGASProperties();
 }
-// Google Apps Script専用ユーティリティ
+// Google Apps Script 전용 유틸리티
 
-// GASのログ出力をブラウザ互換にする
+// GAS의 로깅을 브라우저와 호환하기
 if(typeof(console) == 'undefined' && typeof(Logger) != 'undefined') {
   console = {};
   console.log = function() {
@@ -259,7 +259,7 @@ if(typeof(console) == 'undefined' && typeof(Logger) != 'undefined') {
   }
 }
 
-// サーバに新しいバージョンが無いかチェックする
+// 서버에 새 버전이 있는지 확인
 checkUpdate = function(responder) {
   if(typeof GASProperties === 'undefined') GASProperties = loadGASProperties();
   var current_version = parseFloat(new GASProperties().get('version')) || 0;
@@ -269,7 +269,7 @@ checkUpdate = function(responder) {
   if(response.getResponseCode() == 200) {
     var latest_version = parseFloat(response.getContentText());
     if(latest_version > 0 && latest_version > current_version) {
-      responder.send("最新のみやもとさんの準備ができました！\nhttps://github.com/masuidrive/miyamoto/blob/master/UPDATE.md を読んでください。");
+      responder.send("새로운 버전의 미야모토상이 준비됐습니다! \nhttps://github.com/masuidrive/miyamoto/blob/master/UPDATE.md 를 읽어보십시요.");
 
       var response = UrlFetchApp.fetch("https://raw.githubusercontent.com/masuidrive/miyamoto/master/HISTORY.md", {muteHttpExceptions: true});
       if(response.getResponseCode() == 200) {
@@ -283,10 +283,10 @@ checkUpdate = function(responder) {
 
 loadGSProperties = function (exports) {
   var GSProperties = function(spreadsheet) {
-    // 初期設定
-    this.sheet = spreadsheet.getSheetByName('_設定');
+    // 초기설정
+    this.sheet = spreadsheet.getSheetByName('_설정');
     if(!this.sheet) {
-      this.sheet = spreadsheet.insertSheet('_設定');
+      this.sheet = spreadsheet.insertSheet('_설정');
     }
   };
 
@@ -342,41 +342,41 @@ loadGSProperties = function (exports) {
 if(typeof exports !== 'undefined') {
   exports.GSProperties = loadGSProperties();
 }
-// メッセージテンプレート
+// 메시지 템플릿
 // GSTemplate = loadGSTemplate();
 
 loadGSTemplate = function() {
   var GSTemplate = function(spreadsheet) {
     this.spreadsheet = spreadsheet;
 
-    // メッセージテンプレート設定
-    this.sheet = this.spreadsheet.getSheetByName('_メッセージ');
+    // 메시지 템플릿 설정
+    this.sheet = this.spreadsheet.getSheetByName('_메시지');
     if(!this.sheet) {
-      this.sheet = this.spreadsheet.insertSheet('_メッセージ');
+      this.sheet = this.spreadsheet.insertSheet('_메시지');
       if(!this.sheet) {
-        throw "エラー: メッセージシートを作れませんでした";
+        throw "에러 : 메시지 시트를 만들 수 없습니다";
       }
       else {
         var now = DateUtils.now();
         this.sheet.getRange("A1:L2").setValues([
           [
-            "出勤", "出勤更新", "退勤", "退勤更新", "休暇", "休暇取消",
-            "出勤中", "出勤なし", "休暇中", "休暇なし", "出勤確認", "退勤確認"
+            "출근", "출근변경", "퇴근", "퇴근변경", "휴가", "휴가취소",
+            "출근중", "출근안함", "휴가중", "휴가없음", "출근확인", "퇴근확인"
           ],
           [
-            "<@#1> おはようございます (#2)", "<@#1> 出勤時間を#2へ変更しました",
-            "<@#1> お疲れ様でした (#2)", "<@#1> 退勤時間を#2へ変更しました",
-            "<@#1> #2を休暇として登録しました", "<@#1> #2の休暇を取り消しました",
-            "#1が出勤しています", "全員退勤しています",
-            "#1は#2が休暇です", "#1に休暇の人はいません",
-            "今日は休暇ですか？ #1", "退勤しましたか？ #1"
+            "<@#1> 안녕하세요. 출근했습니다. (#2)", "<@#1> 출근시간을 #2로 변경했습니다",
+            "<@#1> 퇴근합니다. 수고하셨습니다! (#2)", "<@#1> 퇴근시간을 #2로 변경했습니다",
+            "<@#1> #2을 휴가로 등록했습니다", "<@#1> #2휴가를 취소했습니다",
+            "#1가 출근했습니다", "모두 퇴근했습니다",
+            "#1 날짜에 #2가 휴가입니다", "#1 날짜에 휴가를 사용한 사람은 없습니다",
+            "오늘은 휴가인가요? #1", "퇴근했습니까? #1"
           ]
         ]);
       }
     }
   };
 
-  // テンプレートからメッセージを生成
+  // 템플릿에서 메시지를 생성
   GSTemplate.prototype.template = function(label) {
     var labels = this.sheet.getRange("A1:Z1").getValues()[0];
     for(var i = 0; i < labels.length; ++i) {
@@ -416,7 +416,7 @@ loadGSTemplate = function() {
 if(typeof exports !== 'undefined') {
   exports.GSTemplate = loadGSTemplate();
 }
-// 入力内容を解析して、メソッドを呼び出す
+// 입력 내용을 분석해서 메소드를 호출
 // Timesheets = loadTimesheets();
 
 loadGSTimesheets = function () {
@@ -427,13 +427,13 @@ loadGSTimesheets = function () {
 
     this.scheme = {
       columns: [
-        { name: '日付' },
-        { name: '出勤' },
-        { name: '退勤' },
-        { name: 'ノート' },
+        { name: '날짜' },
+        { name: '출근' },
+        { name: '퇴근' },
+        { name: '노트' },
       ],
       properties: [
-        { name: 'DayOff', value: '土,日', comment: '← 月,火,水みたいに入力してください。アカウント停止のためには「全部」と入れてください。'},
+        { name: 'DayOff', value: '토,일', comment: '← 월,화,수와 같이 입력하십시오. 계정 정지를 위해서는「전부」라고 적어주세요'},
       ]
     };
   };
@@ -445,19 +445,19 @@ loadGSTimesheets = function () {
     if(!sheet) {
       sheet = this.spreadsheet.insertSheet(username);
       if(!sheet) {
-        throw "エラー: "+sheetName+"のシートが作れませんでした";
+        throw "에러 : "+sheetName+"의 시트를 만들 수 없습니다";
       }
       else {
-        // 中身が無い場合は新規作成
+        // 내용이 없는 경우 새로 만들기
         if(sheet.getLastRow() == 0) {
-          // 設定部の書き出し
+          // 설정부분 내보내기
           var properties = [["Properties count", this.scheme.properties.length, null]];
           this.scheme.properties.forEach(function(s) {
             properties.push([s.name, s.value, s.comment]);
           });
           sheet.getRange("A1:C"+(properties.length)).setValues(properties);
 
-          // ヘッダの書き出し
+          // 헤더 내보내기
           var rowNo = properties.length + 2;
           var cols = this.scheme.columns.map(function(c) { return c.name; });
           sheet.getRange("A"+rowNo+":"+String.fromCharCode(65 + cols.length - 1)+rowNo).setValues([cols]);
@@ -474,7 +474,7 @@ loadGSTimesheets = function () {
   GSTimesheets.prototype._getRowNo = function(username, date) {
     if(!date) date = DateUtils.now();
     var rowNo = this.scheme.properties.length + 4;
-    var startAt = DateUtils.parseDate(this.settings.get("開始日"));
+    var startAt = DateUtils.parseDate(this.settings.get("시작일"));
     var s = new Date(startAt[0], startAt[1]-1, startAt[2], 0, 0, 0);
     rowNo += parseInt((date.getTime()-date.getTimezoneOffset()*60*1000)/(1000*24*60*60)) - parseInt((s.getTime()-s.getTimezoneOffset()*60*1000)/(1000*24*60*60));
     return rowNo;
@@ -519,7 +519,7 @@ loadGSTimesheets = function () {
     });
   };
 
-  // 休みの曜日を数字で返す
+  // 쉬는 요일을 숫자로 반환
   GSTimesheets.prototype.getDayOff = function(username) {
     var sheet = this._getSheet(username);
     return DateUtils.parseWday(sheet.getRange("B2").getValue());
@@ -531,7 +531,7 @@ loadGSTimesheets = function () {
 if(typeof exports !== 'undefined') {
   exports.GSTimesheets = loadGSTimesheets();
 }
-// 各モジュールの読み込み
+// 각각의 모듈 로드
 var initLibraries = function() {
   if(typeof EventListener === 'undefined') EventListener = loadEventListener();
   if(typeof DateUtils === 'undefined') DateUtils = loadDateUtils();
@@ -565,71 +565,71 @@ var init = function() {
   return null;
 }
 
-// SlackのOutgoingから来るメッセージ
+// Slack의 Outgoing에서 오는 메시지
 function doPost(e) {
   var miyamoto = init();
   miyamoto.receiver.receiveMessage(e.parameters);
 }
 
-// Time-based triggerで実行
+// Time-based trigger에서 실행
 function confirmSignIn() {
   var miyamoto = init();
   miyamoto.timesheets.confirmSignIn();
 }
 
-// Time-based triggerで実行
+// Time-based trigger에서 실행
 function confirmSignOut() {
   var miyamoto = init();
   miyamoto.timesheets.confirmSignOut();
 }
 
 
-// 初期化する
+// 초기화 함수
 function setUp() {
   initLibraries();
 
-  // spreadsheetが無かったら初期化
+  // spreadsheet가 없었으면 초기화
   var global_settings = new GASProperties();
   if(!global_settings.get('spreadsheet')) {
 
-    // タイムシートを作る
+    // 타임 시트 만들기
     var spreadsheet = SpreadsheetApp.create("Slack Timesheets");
     var sheets = spreadsheet.getSheets();
     if(sheets.length == 1 && sheets[0].getLastRow() == 0) {
-      sheets[0].setName('_設定');
+      sheets[0].setName('_설정');
     }
     global_settings.set('spreadsheet', spreadsheet.getId());
 
     var settings = new GSProperties(spreadsheet);
     settings.set('Slack Incoming URL', '');
-    settings.setNote('Slack Incoming URL', 'Slackのincoming URLを入力してください');
-    settings.set('開始日', DateUtils.format("Y-m-d", DateUtils.now()));
-    settings.setNote('開始日', '変更はしないでください');
-    settings.set('無視するユーザ', 'miyamoto,hubot,slackbot,incoming-webhook');
-    settings.setNote('無視するユーザ', '反応をしないユーザを,区切りで設定する。botは必ず指定してください。');
+    settings.setNote('Slack Incoming URL', 'Slack의 incoming URL을 입력해주세요');
+    settings.set('시작일', DateUtils.format("Y-m-d", DateUtils.now()));
+    settings.setNote('시작날', '변경하지 마십시오');
+    settings.set('무시되는 사용자', 'miyamoto,hubot,slackbot,incoming-webhook');
+    settings.setNote('무시되는 사용자', '반응을 하지 않는 사용자를 구분하여 설정한다. 봇은 반드시 설정하십시오.');
 
-    // 休日を設定 (iCal)
-    var calendarId = 'ja.japanese#holiday@group.v.calendar.google.com';
+    // 공휴일 설정 (iCal)
+    var calendarId = 'ko.south_korea#holiday@group.v.calendar.google.com';
     var calendar = CalendarApp.getCalendarById(calendarId);
     var startDate = DateUtils.now();
     var endDate = new Date(startDate.getFullYear() + 1, startDate.getMonth());
     var holidays = _.map(calendar.getEvents(startDate, endDate), function(ev) {
       return DateUtils.format("Y-m-d", ev.getAllDayStartDate());
     });
-    settings.set('休日', holidays.join(', '));
-    settings.setNote('休日', '日付を,区切りで。来年までは自動設定されているので、以後は適当に更新してください');
+    settings.set('공휴일', holidays.join(', '));
+    settings.setNote('공휴일', '날짜를 , 구분 기호로. 내년까지는 자동 설정되어 있기 때문에, 이후는 적당히 업데이트 하십시오');
 
-    // メッセージ用のシートを作成
+    // 메시지의 시트를 작성
     new GSTemplate(spreadsheet);
 
-    // 毎日11時頃に出勤してるかチェックする
+    // 매일 11시경에 출근확인
     ScriptApp.newTrigger('confirmSignIn')
       .timeBased()
       .everyDays(1)
       .atHour(11)
       .create();
 
-    // 毎日22時頃に退勤してるかチェックする
+    // 매일 22시 무렵에 퇴근확인
     ScriptApp.newTrigger('confirmSignOut')
       .timeBased()
       .everyDays(1)
@@ -638,13 +638,13 @@ function setUp() {
   }
 };
 
-/* バージョンアップ処理を行う */
+/* 버전 업데이트 작업을 수행 */
 function migrate() {
   if(typeof GASProperties === 'undefined') GASProperties = loadGASProperties();
 
   var global_settings = new GASProperties();
   global_settings.set('version', "20141027.0");
-  console.log("バージョンアップが完了しました。");
+  console.log("버전 업데이트가 완료되었습니다.");
 }
 
 
@@ -655,7 +655,7 @@ function test1(e) {
   miyamoto.receiver.receiveMessage({user_name:"masuidrive", text:"hello 8:00"});
 }
 */
-// Slackのインタフェース
+// Slack의 인터페이스
 // Slack = loadSlack();
 
 loadSlack = function () {
@@ -669,22 +669,22 @@ loadSlack = function () {
   if(typeof EventListener === 'undefined') EventListener = loadEventListener();
   _.extend(Slack.prototype, EventListener.prototype);
 
-  // 受信したメッセージをtimesheetsに投げる
+  // 받은 메시지를 timesheets로 보낸다
   Slack.prototype.receiveMessage = function(message) {
     var username = String(message.user_name);
     var body = String(message['text']);
 
-    // 特定のアカウントには反応しない
-    var ignore_users = (this.settings.get("無視するユーザ") || '').toLowerCase().replace(/^\s*(.*?)\s*$/, "$1").split(/\s*,\s*/);
+    // 특정 계정에 반응하지 않는
+    var ignore_users = (this.settings.get("무시되는 사용자") || '').toLowerCase().replace(/^\s*(.*?)\s*$/, "$1").split(/\s*,\s*/);
     if(_.contains(ignore_users, username.toLowerCase())) return;
 
-    // -で始まるメッセージも無視
+    // -로 시작하는 메시지도 무시
     if(body.match(/^-/)) return;
 
     this.fireEvent('receiveMessage', username, body);
   };
 
-  // メッセージ送信
+  // 메시지 보내기
   Slack.prototype.send = function(message, options) {
     options = _.clone(options || {});
     options["text"] = message;
@@ -701,7 +701,7 @@ loadSlack = function () {
     return message;
   };
 
-  // テンプレート付きでメッセージ送信
+  // 템플릿과 함께 메시지 보내기
   Slack.prototype.template = function() {
     this.send(this._template.template.apply(this._template, arguments));
   };
@@ -712,7 +712,7 @@ loadSlack = function () {
 if(typeof exports !== 'undefined') {
   exports.Slack = loadSlack();
 }
-// 入力内容を解析して、メソッドを呼び出す
+// 입력 내용을 분석하여 메소드를 호출
 // Timesheets = loadTimesheets();
 
 loadTimesheets = function (exports) {
@@ -727,9 +727,9 @@ loadTimesheets = function (exports) {
     });
   };
 
-  // メッセージを受信する
+  // 메시지를 수신하는
   Timesheets.prototype.receiveMessage = function(username, message) {
-    // 日付は先に処理しておく
+    // 날짜를 먼저 처리
     this.date = DateUtils.parseDate(message);
     this.time = DateUtils.parseTime(message);
     this.datetime = DateUtils.normalizeDateTime(this.date, this.time);
@@ -738,90 +738,90 @@ loadTimesheets = function (exports) {
       this.datetimeStr = DateUtils.format("Y/m/d H:M", this.datetime);
     }
 
-    // コマンド集
+    // 커맨드 목록
     var commands = [
-      ['actionSignOut', /(バ[ー〜ァ]*イ|ば[ー〜ぁ]*い|おやすみ|お[つっ]ー|おつ|さらば|お先|お疲|帰|乙|bye|night|(c|see)\s*(u|you)|退勤|ごきげんよ|グ[ッ]?バイ)/],
-      ['actionWhoIsOff', /(だれ|誰|who\s*is).*(休|やす(ま|み|む))/],
-      ['actionWhoIsIn', /(だれ|誰|who\s*is)/],
-      ['actionCancelOff', /(休|やす(ま|み|む)|休暇).*(キャンセル|消|止|やめ|ません)/],
-      ['actionOff', /(休|やす(ま|み|む)|休暇)/],
-      ['actionSignIn', /(モ[ー〜]+ニン|も[ー〜]+にん|おっは|おは|へろ|はろ|ヘロ|ハロ|hi|hello|morning|出勤)/],
+      ['actionSignOut', /(퇴[~]*근|퇴근|bye|night|(c|see)\s*(u|you))/],
+      ['actionWhoIsOff', /(누(구|가)|who\s*is).*(휴가|쉬는날)/],
+      ['actionWhoIsIn', /(누(구|가)|사무실|인원(파악|체크)|who\s*is)/],
+      ['actionCancelOff', /(휴가|쉬는날).*(cancel|캔슬|취소|중지|반납|미사용)/],
+      ['actionOff', /(휴가|쉬는날|쉴께요|쉬려고요|쉬겠습니다|휴가(입니다|사용))/],
+      ['actionSignIn', /(모[~]+닝|아[~]+침|굿모닝|아침|좋은아침|안녕하세요|안녕|hi|hello|morning|출근)/],
       ['confirmSignIn', /__confirmSignIn__/],
       ['confirmSignOut', /__confirmSignOut__/],
     ];
 
-    // メッセージを元にメソッドを探す
+    // 메시지를 바탕으로 처리 방법을 찾아냄
     var command = _.find(commands, function(ary) {
       return(ary && message.match(ary[1]));
     });
 
-    // メッセージを実行
+    // 메시지를 실행
     if(command && this[command[0]]) {
       return this[command[0]](username, message);
     }
   }
 
-  // 出勤
+  // 출근
   Timesheets.prototype.actionSignIn = function(username, message) {
     if(this.datetime) {
       var data = this.storage.get(username, this.datetime);
       if(!data.signIn || data.signIn === '-') {
         this.storage.set(username, this.datetime, {signIn: this.datetime});
-        this.responder.template("出勤", username, this.datetimeStr);
+        this.responder.template("출근", username, this.datetimeStr);
       }
       else {
-        // 更新の場合は時間を明示する必要がある
+        // 변경의 경우는 시간을 명시할 필요가 있음
         if(!!this.time) {
           this.storage.set(username, this.datetime, {signIn: this.datetime});
-          this.responder.template("出勤更新", username, this.datetimeStr);
+          this.responder.template("출근변경", username, this.datetimeStr);
         }
       }
     }
   };
 
-  // 退勤
+  // 퇴근
   Timesheets.prototype.actionSignOut = function(username, message) {
     if(this.datetime) {
       var data = this.storage.get(username, this.datetime);
       if(!data.signOut || data.signOut === '-') {
         this.storage.set(username, this.datetime, {signOut: this.datetime});
-        this.responder.template("退勤", username, this.datetimeStr);
+        this.responder.template("퇴근", username, this.datetimeStr);
       }
       else {
-        // 更新の場合は時間を明示する必要がある
+        // 변경의 경우는 시간을 명시할 필요가 있음
         if(!!this.time) {
           this.storage.set(username, this.datetime, {signOut: this.datetime});
-          this.responder.template("退勤更新", username, this.datetimeStr);
+          this.responder.template("퇴근변경", username, this.datetimeStr);
         }
       }
     }
   };
 
-  // 休暇申請
+  // 휴가신청
   Timesheets.prototype.actionOff = function(username, message) {
     if(this.date) {
       var dateObj = new Date(this.date[0], this.date[1]-1, this.date[2]);
       var data = this.storage.get(username, dateObj);
       if(!data.signOut || data.signOut === '-') {
         this.storage.set(username, dateObj, {signIn: '-', signOut: '-', note: message});
-        this.responder.template("休暇", username, DateUtils.format("Y/m/d", dateObj));
+        this.responder.template("휴가", username, DateUtils.format("Y/m/d", dateObj));
       }
     }
   };
 
-  // 休暇取消
+  // 휴가취소
   Timesheets.prototype.actionCancelOff = function(username, message) {
     if(this.date) {
       var dateObj = new Date(this.date[0], this.date[1]-1, this.date[2]);
       var data = this.storage.get(username, dateObj);
       if(!data.signOut || data.signOut === '-') {
         this.storage.set(username, dateObj, {signIn: null, signOut: null, note: message});
-        this.responder.template("休暇取消", username, DateUtils.format("Y/m/d", dateObj));
+        this.responder.template("휴가취소", username, DateUtils.format("Y/m/d", dateObj));
       }
     }
   };
 
-  // 出勤中
+  // 출근중
   Timesheets.prototype.actionWhoIsIn = function(username, message) {
     var dateObj = DateUtils.toDate(DateUtils.now());
     var result = _.compact(_.map(this.storage.getByDate(dateObj), function(row) {
@@ -829,14 +829,14 @@ loadTimesheets = function (exports) {
     }));
 
     if(_.isEmpty(result)) {
-      this.responder.template("出勤なし");
+      this.responder.template("출근안함");
     }
     else {
-      this.responder.template("出勤中", result.sort().join(', '));
+      this.responder.template("출근중", result.sort().join(', '));
     }
   };
 
-  // 休暇中
+  // 휴가중
   Timesheets.prototype.actionWhoIsOff = function(username, message) {
     var dateObj = DateUtils.toDate(DateUtils.now());
     var dateStr = DateUtils.format("Y/m/d", dateObj);
@@ -844,7 +844,7 @@ loadTimesheets = function (exports) {
       return row.signIn === '-' ? row.user : undefined;
     }));
 
-    // 定休の処理
+    // 정기처리
     var wday = dateObj.getDay();
     var self = this;
     _.each(this.storage.getUsers(), function(username) {
@@ -855,23 +855,23 @@ loadTimesheets = function (exports) {
     result = _.uniq(result);
 
     if(_.isEmpty(result)) {
-      this.responder.template("休暇なし", dateStr);
+      this.responder.template("휴가없음", dateStr);
     }
     else {
-      this.responder.template("休暇中", dateStr, result.sort().join(', '));
+      this.responder.template("휴가중", dateStr, result.sort().join(', '));
     }
   };
 
-  // 出勤していない人にメッセージを送る
+  // 출근하지 않는 사람에게 메시지 보내기
   Timesheets.prototype.confirmSignIn = function(username, message) {
     var self = this;
-    var holidays = _.compact(_.map((this.settings.get("休日") || "").split(','), function(s) {
+    var holidays = _.compact(_.map((this.settings.get("휴일") || "").split(','), function(s) {
       var date = DateUtils.parseDateTime(s);
       return date ? DateUtils.format("Y/m/d", date) : undefined;
     }));
     var today = DateUtils.toDate(DateUtils.now());
 
-    // 休日ならチェックしない
+    // 휴일이라면 체크하지 않음
     if(_.contains(holidays, DateUtils.format("Y/m/d",today))) return;
 
     var wday = DateUtils.now().getDay();
@@ -883,14 +883,14 @@ loadTimesheets = function (exports) {
     var users = _.difference(this.storage.getUsers(), signedInUsers);
 
     if(!_.isEmpty(users)) {
-      this.responder.template("出勤確認", users.sort());
+      this.responder.template("출근확인", users.sort());
     }
 
-    // バージョンチェックを行う
+    // 버전 검사를 수행
     if(typeof checkUpdate == 'function') checkUpdate(this.responder);
   };
 
-  // 退勤していない人にメッセージを送る
+  // 퇴근하지 않은 사람에게 메시지 보내기
   Timesheets.prototype.confirmSignOut = function(username, message) {
     var dateObj = DateUtils.toDate(DateUtils.now());
     var users = _.compact(_.map(this.storage.getByDate(dateObj), function(row) {
@@ -898,7 +898,7 @@ loadTimesheets = function (exports) {
     }));
 
     if(!_.isEmpty(users)) {
-      this.responder.template("退勤確認", users.sort());
+      this.responder.template("퇴근확인", users.sort());
     }
   };
 
